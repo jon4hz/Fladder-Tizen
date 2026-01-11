@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:developer';
 
 import 'package:flutter/foundation.dart';
@@ -18,6 +19,7 @@ import 'package:fladder/models/items/item_shared_models.dart';
 import 'package:fladder/models/items/media_segments_model.dart';
 import 'package:fladder/models/items/photos_model.dart';
 import 'package:fladder/models/items/trick_play_model.dart';
+import 'package:fladder/models/sso_device_auth_model.dart';
 import 'package:fladder/providers/api_provider.dart';
 import 'package:fladder/providers/auth_provider.dart';
 import 'package:fladder/providers/image_provider.dart';
@@ -1302,6 +1304,126 @@ class JellyService {
     return api.usersAuthenticateWithQuickConnectPost(
       body: QuickConnectDto(secret: secret),
     );
+  }
+
+  /// SSO Device Code Authorization Flow
+
+  /// Fetches the list of SSO providers that have device code auth enabled.
+  /// Returns an empty list if SSO plugin is not installed or no providers are configured.
+  Future<List<String>> getSsoDeviceProviders(String baseUrl) async {
+    try {
+      final url = buildServerUriFromBase(
+        baseUrl,
+        pathSegments: ['sso', 'OID', 'GetDeviceNames'],
+      );
+      if (url == null) return [];
+
+      final response = await http.get(url);
+      if (response.statusCode == 200) {
+        final List<dynamic> body = jsonDecode(response.body);
+        return body.map((e) => e.toString()).toList();
+      }
+      return [];
+    } catch (e) {
+      // SSO plugin not installed or endpoint not available
+      return [];
+    }
+  }
+
+  /// Initiates the device authorization flow for a given provider.
+  /// Returns the device code info including user code and verification URL.
+  Future<Response<SsoDeviceInitResponse>> ssoDeviceInitiate({
+    required String baseUrl,
+    required String providerName,
+    required String codeChallenge,
+  }) async {
+    final url = buildServerUriFromBase(
+      baseUrl,
+      pathSegments: ['sso', 'OID', 'device', providerName],
+    );
+    if (url == null) {
+      return Response(http.Response('', 400), null);
+    }
+
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'codeChallenge': codeChallenge}),
+    );
+
+    if (response.statusCode == 200) {
+      final body = jsonDecode(response.body) as Map<String, dynamic>;
+      return Response(response, SsoDeviceInitResponse.fromJson(body));
+    }
+    return Response(response, null);
+  }
+
+  /// Polls to check if the user has completed authentication.
+  Future<Response<SsoDevicePollResponse>> ssoDevicePoll({
+    required String baseUrl,
+    required String providerName,
+    required String state,
+    required String codeChallenge,
+  }) async {
+    final url = buildServerUriFromBase(
+      baseUrl,
+      pathSegments: ['sso', 'OID', 'devicePoll', providerName],
+      queryParameters: {
+        'state': state,
+        'codeChallenge': codeChallenge,
+      },
+    );
+    if (url == null) {
+      return Response(http.Response('', 400), null);
+    }
+
+    final response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      final body = jsonDecode(response.body) as Map<String, dynamic>;
+      return Response(response, SsoDevicePollResponse.fromJson(body));
+    }
+    return Response(response, null);
+  }
+
+  /// Completes the device authorization flow after polling returns 'complete'.
+  /// Returns the Jellyfin authentication result.
+  Future<Response<AuthenticationResult>> ssoDeviceAuthenticate({
+    required String baseUrl,
+    required String providerName,
+    required String deviceId,
+    required String deviceName,
+    required String appName,
+    required String appVersion,
+    required String state,
+    required String codeVerifier,
+  }) async {
+    final url = buildServerUriFromBase(
+      baseUrl,
+      pathSegments: ['sso', 'OID', 'deviceAuth', providerName],
+    );
+    if (url == null) {
+      return Response(http.Response('', 400), null);
+    }
+
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'deviceId': deviceId,
+        'deviceName': deviceName,
+        'appName': appName,
+        'appVersion': appVersion,
+        'data': state,
+        'codeVerifier': codeVerifier,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      final body = jsonDecode(response.body) as Map<String, dynamic>;
+      return Response(response, AuthenticationResult.fromJson(body));
+    }
+    return Response(response, null);
   }
 
   Future<Response<dynamic>> resetPassword({

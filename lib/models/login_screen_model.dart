@@ -32,5 +32,6 @@ abstract class ServerLoginModel with _$ServerLoginModel {
     @Default([]) List<AccountModel> accounts,
     String? serverMessage,
     @Default(false) bool hasQuickConnect,
+    @Default([]) List<String> ssoDeviceProviders,
   }) = _ServerLoginModel;
 }

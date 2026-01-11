@@ -20,6 +20,7 @@ import 'package:fladder/providers/user_provider.dart';
 import 'package:fladder/providers/views_provider.dart';
 import 'package:fladder/screens/login/lock_screen.dart';
 import 'package:fladder/screens/shared/fladder_snackbar.dart';
+import 'package:fladder/util/application_info.dart';
 import 'package:fladder/util/fladder_config.dart';
 import 'package:fladder/util/localization_helper.dart';
 
@@ -69,6 +70,10 @@ class AuthNotifier extends StateNotifier<LoginScreenModel> {
       final branding = await api.getBranding();
       final serverResponse = await api.systemInfoPublicGet();
       final serverId = serverResponse.body?.id ?? "";
+
+      // Fetch SSO device providers (non-blocking, defaults to empty list)
+      final ssoDeviceProviders = await api.getSsoDeviceProviders(url);
+
       state = state.copyWith(
         errorMessage: null,
         screen: quickConnectStatus ? LoginScreenType.code : LoginScreenType.login,
@@ -80,6 +85,7 @@ class AuthNotifier extends StateNotifier<LoginScreenModel> {
           accounts: publicUsers,
           hasQuickConnect: quickConnectStatus,
           serverMessage: branding.body?.loginDisclaimer,
+          ssoDeviceProviders: ssoDeviceProviders,
         ),
         loading: false,
       );
@@ -123,6 +129,29 @@ class AuthNotifier extends StateNotifier<LoginScreenModel> {
   Future<Response<AccountModel>?> authenticateUsingSecret(String secret) async {
     clearAllProviders();
     var response = await api.quickConnectAuthenticate(secret);
+    return _createAccountModel(response);
+  }
+
+  Future<Response<AccountModel>?> authenticateUsingSsoDeviceCode({
+    required String providerName,
+    required String deviceId,
+    required String state,
+    required String codeVerifier,
+  }) async {
+    clearAllProviders();
+    final serverUrl = this.state.serverLoginModel?.tempCredentials.url ?? '';
+    final application = ref.read(applicationInfoProvider);
+
+    var response = await api.ssoDeviceAuthenticate(
+      baseUrl: serverUrl,
+      providerName: providerName,
+      deviceId: deviceId,
+      deviceName: application.os,
+      appName: application.name,
+      appVersion: application.version,
+      state: state,
+      codeVerifier: codeVerifier,
+    );
     return _createAccountModel(response);
   }
 

@@ -15,6 +15,7 @@ import 'package:fladder/providers/user_provider.dart';
 import 'package:fladder/routes/auto_router.gr.dart';
 import 'package:fladder/screens/login/lock_screen.dart';
 import 'package:fladder/screens/login/login_code_dialog.dart';
+import 'package:fladder/screens/login/sso_device_code_dialog.dart';
 import 'package:fladder/screens/login/login_user_grid.dart';
 import 'package:fladder/screens/login/widgets/advanced_login_options_dialog.dart';
 import 'package:fladder/screens/login/widgets/discover_servers_widget.dart';
@@ -60,6 +61,8 @@ class _LoginScreenCredentialsState extends ConsumerState<LoginScreenCredentials>
     final hasBaseUrl = ref.watch(authProvider.select((value) => value.hasBaseUrl));
     final urlError = ref.watch(authProvider.select((value) => value.errorMessage));
     final hasQuickConnect = ref.watch(authProvider.select((value) => value.serverLoginModel?.hasQuickConnect ?? false));
+    final ssoDeviceProviders =
+        ref.watch(authProvider.select((value) => value.serverLoginModel?.ssoDeviceProviders ?? []));
 
     ref.listen(
       authProvider.select((value) => value.serverLoginModel),
@@ -249,6 +252,26 @@ class _LoginScreenCredentialsState extends ConsumerState<LoginScreenCredentials>
                         ],
                       ),
                     ),
+                  // SSO Device Code buttons
+                  ...ssoDeviceProviders.map((providerName) => FilledButton.tonal(
+                        onPressed: () async {
+                          final result = await openSsoDeviceCodeDialog(
+                            context,
+                            providerName: providerName,
+                          );
+                          if (result != null) {
+                            await loginUsingSsoDeviceCode(result);
+                          }
+                        },
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(context.localized.ssoLoginWith(providerName)),
+                            const SizedBox(width: 8),
+                            const Icon(IconsaxPlusBold.key),
+                          ],
+                        ),
+                      )),
                 ],
               ),
               if (serverCredentials.serverMessage?.isEmpty == false) ...[
@@ -345,6 +368,29 @@ class _LoginScreenCredentialsState extends ConsumerState<LoginScreenCredentials>
       fladderSnackbar(context,
           title:
               "(${response?.base.statusCode}) ${response?.base.reasonPhrase ?? context.localized.somethingWentWrongPasswordCheck}");
+    } else if (response?.body != null) {
+      loggedInGoToHome(context, ref);
+    }
+    setState(() {
+      loggingIn = false;
+    });
+  }
+
+  Future<void> loginUsingSsoDeviceCode(SsoDeviceAuthResult result) async {
+    setState(() {
+      loggingIn = true;
+    });
+    final credentials = ref.read(authProvider).serverLoginModel?.tempCredentials;
+    final response = await ref.read(authProvider.notifier).authenticateUsingSsoDeviceCode(
+          providerName: result.providerName,
+          deviceId: credentials?.deviceId ?? '',
+          state: result.state,
+          codeVerifier: result.codeVerifier,
+        );
+    if (response?.isSuccessful == false) {
+      fladderSnackbar(context,
+          title:
+              "(${response?.base.statusCode}) ${response?.base.reasonPhrase ?? context.localized.ssoDeviceAuthFailed}");
     } else if (response?.body != null) {
       loggedInGoToHome(context, ref);
     }

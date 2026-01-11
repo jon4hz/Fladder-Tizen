@@ -493,6 +493,7 @@ mixin _$ServerLoginModel {
   List<AccountModel> get accounts;
   String? get serverMessage;
   bool get hasQuickConnect;
+  List<String> get ssoDeviceProviders;
 
   /// Create a copy of ServerLoginModel
   /// with the given fields replaced by the non-null parameter values.
@@ -504,7 +505,7 @@ mixin _$ServerLoginModel {
 
   @override
   String toString() {
-    return 'ServerLoginModel(tempCredentials: $tempCredentials, accounts: $accounts, serverMessage: $serverMessage, hasQuickConnect: $hasQuickConnect)';
+    return 'ServerLoginModel(tempCredentials: $tempCredentials, accounts: $accounts, serverMessage: $serverMessage, hasQuickConnect: $hasQuickConnect, ssoDeviceProviders: $ssoDeviceProviders)';
   }
 }
 
@@ -518,7 +519,8 @@ abstract mixin class $ServerLoginModelCopyWith<$Res> {
       {CredentialsModel tempCredentials,
       List<AccountModel> accounts,
       String? serverMessage,
-      bool hasQuickConnect});
+      bool hasQuickConnect,
+      List<String> ssoDeviceProviders});
 
   $CredentialsModelCopyWith<$Res> get tempCredentials;
 }
@@ -540,6 +542,7 @@ class _$ServerLoginModelCopyWithImpl<$Res>
     Object? accounts = null,
     Object? serverMessage = freezed,
     Object? hasQuickConnect = null,
+    Object? ssoDeviceProviders = null,
   }) {
     return _then(_self.copyWith(
       tempCredentials: null == tempCredentials
@@ -558,6 +561,10 @@ class _$ServerLoginModelCopyWithImpl<$Res>
           ? _self.hasQuickConnect
           : hasQuickConnect // ignore: cast_nullable_to_non_nullable
               as bool,
+      ssoDeviceProviders: null == ssoDeviceProviders
+          ? _self.ssoDeviceProviders
+          : ssoDeviceProviders // ignore: cast_nullable_to_non_nullable
+              as List<String>,
     ));
   }
 
@@ -669,15 +676,20 @@ extension ServerLoginModelPatterns on ServerLoginModel {
             CredentialsModel tempCredentials,
             List<AccountModel> accounts,
             String? serverMessage,
-            bool hasQuickConnect)?
+            bool hasQuickConnect,
+            List<String> ssoDeviceProviders)?
         $default, {
     required TResult orElse(),
   }) {
     final _that = this;
     switch (_that) {
       case _ServerLoginModel() when $default != null:
-        return $default(_that.tempCredentials, _that.accounts,
-            _that.serverMessage, _that.hasQuickConnect);
+        return $default(
+            _that.tempCredentials,
+            _that.accounts,
+            _that.serverMessage,
+            _that.hasQuickConnect,
+            _that.ssoDeviceProviders);
       case _:
         return orElse();
     }
@@ -702,14 +714,19 @@ extension ServerLoginModelPatterns on ServerLoginModel {
             CredentialsModel tempCredentials,
             List<AccountModel> accounts,
             String? serverMessage,
-            bool hasQuickConnect)
+            bool hasQuickConnect,
+            List<String> ssoDeviceProviders)
         $default,
   ) {
     final _that = this;
     switch (_that) {
       case _ServerLoginModel():
-        return $default(_that.tempCredentials, _that.accounts,
-            _that.serverMessage, _that.hasQuickConnect);
+        return $default(
+            _that.tempCredentials,
+            _that.accounts,
+            _that.serverMessage,
+            _that.hasQuickConnect,
+            _that.ssoDeviceProviders);
       case _:
         throw StateError('Unexpected subclass');
     }
@@ -733,14 +750,19 @@ extension ServerLoginModelPatterns on ServerLoginModel {
             CredentialsModel tempCredentials,
             List<AccountModel> accounts,
             String? serverMessage,
-            bool hasQuickConnect)?
+            bool hasQuickConnect,
+            List<String> ssoDeviceProviders)?
         $default,
   ) {
     final _that = this;
     switch (_that) {
       case _ServerLoginModel() when $default != null:
-        return $default(_that.tempCredentials, _that.accounts,
-            _that.serverMessage, _that.hasQuickConnect);
+        return $default(
+            _that.tempCredentials,
+            _that.accounts,
+            _that.serverMessage,
+            _that.hasQuickConnect,
+            _that.ssoDeviceProviders);
       case _:
         return null;
     }
@@ -754,8 +776,10 @@ class _ServerLoginModel implements ServerLoginModel {
       {required this.tempCredentials,
       final List<AccountModel> accounts = const [],
       this.serverMessage,
-      this.hasQuickConnect = false})
-      : _accounts = accounts;
+      this.hasQuickConnect = false,
+      final List<String> ssoDeviceProviders = const []})
+      : _accounts = accounts,
+        _ssoDeviceProviders = ssoDeviceProviders;
 
   @override
   final CredentialsModel tempCredentials;
@@ -773,6 +797,15 @@ class _ServerLoginModel implements ServerLoginModel {
   @override
   @JsonKey()
   final bool hasQuickConnect;
+  final List<String> _ssoDeviceProviders;
+  @override
+  @JsonKey()
+  List<String> get ssoDeviceProviders {
+    if (_ssoDeviceProviders is EqualUnmodifiableListView)
+      return _ssoDeviceProviders;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_ssoDeviceProviders);
+  }
 
   /// Create a copy of ServerLoginModel
   /// with the given fields replaced by the non-null parameter values.
@@ -784,7 +817,7 @@ class _ServerLoginModel implements ServerLoginModel {
 
   @override
   String toString() {
-    return 'ServerLoginModel(tempCredentials: $tempCredentials, accounts: $accounts, serverMessage: $serverMessage, hasQuickConnect: $hasQuickConnect)';
+    return 'ServerLoginModel(tempCredentials: $tempCredentials, accounts: $accounts, serverMessage: $serverMessage, hasQuickConnect: $hasQuickConnect, ssoDeviceProviders: $ssoDeviceProviders)';
   }
 }
 
@@ -800,7 +833,8 @@ abstract mixin class _$ServerLoginModelCopyWith<$Res>
       {CredentialsModel tempCredentials,
       List<AccountModel> accounts,
       String? serverMessage,
-      bool hasQuickConnect});
+      bool hasQuickConnect,
+      List<String> ssoDeviceProviders});
 
   @override
   $CredentialsModelCopyWith<$Res> get tempCredentials;
@@ -823,6 +857,7 @@ class __$ServerLoginModelCopyWithImpl<$Res>
     Object? accounts = null,
     Object? serverMessage = freezed,
     Object? hasQuickConnect = null,
+    Object? ssoDeviceProviders = null,
   }) {
     return _then(_ServerLoginModel(
       tempCredentials: null == tempCredentials
@@ -841,6 +876,10 @@ class __$ServerLoginModelCopyWithImpl<$Res>
           ? _self.hasQuickConnect
           : hasQuickConnect // ignore: cast_nullable_to_non_nullable
               as bool,
+      ssoDeviceProviders: null == ssoDeviceProviders
+          ? _self._ssoDeviceProviders
+          : ssoDeviceProviders // ignore: cast_nullable_to_non_nullable
+              as List<String>,
     ));
   }
 

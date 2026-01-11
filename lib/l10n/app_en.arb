@@ -1498,6 +1498,36 @@
   "quickConnectPostFailed": "Failed to get quick connect code",
   "quickConnectLoginUsingCode": "Using quick connect",
   "quickConnectEnterCodeDescription": "Enter the code below to login",
+  "ssoLoginWith": "Sign in with {provider}",
+  "@ssoLoginWith": {
+    "placeholders": {
+      "provider": {
+        "type": "String"
+      }
+    }
+  },
+  "ssoDeviceCodeTitle": "SSO Device Login",
+  "@ssoDeviceCodeTitle": {},
+  "ssoDeviceCodeInstructions": "To sign in, visit the URL below and enter the code shown",
+  "@ssoDeviceCodeInstructions": {},
+  "ssoUserCode": "Your code",
+  "@ssoUserCode": {},
+  "ssoTapToCopy": "Tap to copy",
+  "@ssoTapToCopy": {},
+  "ssoVisitUrl": "Visit this URL:",
+  "@ssoVisitUrl": {},
+  "ssoOpenInBrowser": "Open in browser",
+  "@ssoOpenInBrowser": {},
+  "ssoWaitingForAuth": "Waiting for authentication...",
+  "@ssoWaitingForAuth": {},
+  "ssoCopiedToClipboard": "Code copied to clipboard",
+  "@ssoCopiedToClipboard": {},
+  "ssoUnableToOpenUrl": "Unable to open URL",
+  "@ssoUnableToOpenUrl": {},
+  "ssoDeviceAuthFailed": "SSO authentication failed",
+  "@ssoDeviceAuthFailed": {},
+  "ssoDeviceCodeExpired": "Device code expired. Please try again.",
+  "@ssoDeviceCodeExpired": {},
   "showMore": "Show more",
   "itemColorsTitle": "Item colors",
   "itemColorsDesc": "Use item's primary color to theme the details page",

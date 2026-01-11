@@ -51,6 +51,9 @@ dependencies:
   flutter_riverpod: ^2.6.1
   riverpod_annotation: ^2.6.1
 
+  # Cryptography
+  crypto: ^3.0.6
+
   # JSON and Serialization
   json_annotation: ^4.9.0
   freezed_annotation: ^3.1.0
@@ -94,6 +97,7 @@ dependencies:
   flutter_sticky_header: ^0.8.0
   markdown_widget: ^2.3.2+8
   palette_generator_master: ^1.0.1
+  pretty_qr_code: ^3.5.0
 
   # Navigation
   auto_route: ^10.1.2
@@ -141,7 +145,7 @@ dependencies:
   drift_sqflite: ^2.0.1
   video_player_videohole: ^0.5.8
   subtitle: ^0.1.4
-  
+
   # Other
   async: ^2.13.0
   xid: ^1.2.1

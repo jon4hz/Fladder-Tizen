@@ -6,6 +6,7 @@ import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:pretty_qr_code/pretty_qr_code.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'package:fladder/models/sso_device_auth_model.dart';
@@ -290,6 +291,7 @@ class _SsoDeviceCodeDialogState extends ConsumerState<SsoDeviceCodeDialog> {
 
   Widget _buildDeviceCodeView() {
     final deviceInfo = _deviceInfo!;
+    final qrData = deviceInfo.verificationUriComplete ?? deviceInfo.verificationUri;
 
     return ListView(
       shrinkWrap: true,
@@ -299,58 +301,66 @@ class _SsoDeviceCodeDialogState extends ConsumerState<SsoDeviceCodeDialog> {
           style: Theme.of(context).textTheme.bodyLarge,
           textAlign: TextAlign.center,
         ),
-        const SizedBox(height: 24),
-        // User code display
-        InkWell(
-          onTap: _copyUserCode,
-          borderRadius: BorderRadius.circular(12),
-          child: Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                children: [
-                  Text(
-                    context.localized.ssoUserCode,
-                    style: Theme.of(context).textTheme.labelMedium,
+        const SizedBox(height: 16),
+        // QR Code with white background for readability
+        Center(
+          child: Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: SizedBox(
+              width: 180,
+              height: 180,
+              child: PrettyQrView.data(
+                data: qrData,
+                decoration: const PrettyQrDecoration(
+                  shape: PrettyQrSmoothSymbol(
+                    color: Colors.black,
                   ),
-                  const SizedBox(height: 8),
-                  Text(
-                    deviceInfo.userCode,
-                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 4,
-                        ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    context.localized.ssoTapToCopy,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Theme.of(context).colorScheme.outline,
-                        ),
-                  ),
-                ],
+                ),
               ),
             ),
           ),
         ),
         const SizedBox(height: 16),
-        // Verification URL
-        Text(
-          context.localized.ssoVisitUrl,
-          style: Theme.of(context).textTheme.bodyMedium,
-          textAlign: TextAlign.center,
+        // User code display - compact
+        InkWell(
+          onTap: _copyUserCode,
+          borderRadius: BorderRadius.circular(8),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 12.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  deviceInfo.userCode,
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 2,
+                      ),
+                ),
+                const SizedBox(width: 8),
+                Icon(
+                  Icons.copy,
+                  size: 18,
+                  color: Theme.of(context).colorScheme.outline,
+                ),
+              ],
+            ),
+          ),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 12),
+        // Verification URL
         SelectableText(
           deviceInfo.verificationUri,
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: Theme.of(context).colorScheme.primary,
-                decoration: TextDecoration.underline,
               ),
           textAlign: TextAlign.center,
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 12),
         FilledButton.tonal(
           onPressed: _openVerificationUrl,
           child: Row(
@@ -362,7 +372,7 @@ class _SsoDeviceCodeDialogState extends ConsumerState<SsoDeviceCodeDialog> {
             ],
           ),
         ),
-        const SizedBox(height: 24),
+        const SizedBox(height: 16),
         // Polling indicator
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
